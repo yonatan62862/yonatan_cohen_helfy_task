@@ -1,35 +1,29 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useState } from "react";
 import TaskItem from "./TaskItem";
 
 function TaskList({ tasks, onDelete, onToggle, onUpdate, onReorder }) {
   const containerRef = useRef(null);
   const [draggedIndex, setDraggedIndex] = useState(null);
-  const [paused, setPaused] = useState(false);
 
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
 
-    let scrollAmount = 0;
-    let animationFrame;
+  const handleMouseDown = (e) => {
+    setIsDragging(true);
+    setStartX(e.pageX - containerRef.current.offsetLeft);
+    setScrollLeft(containerRef.current.scrollLeft);
+  };
 
-    const scroll = () => {
-      if (!paused) {
-        scrollAmount += 1; 
-        container.scrollLeft = scrollAmount;
+  const handleMouseMove = (e) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    const x = e.pageX - containerRef.current.offsetLeft;
+    const walk = (x - startX) * 1.5;
+    containerRef.current.scrollLeft = scrollLeft - walk;
+  };
 
-        if (scrollAmount >= container.scrollWidth / 2) {
-          scrollAmount = 0;
-          container.scrollLeft = 0;
-        }
-      }
-      animationFrame = requestAnimationFrame(scroll);
-    };
-
-    animationFrame = requestAnimationFrame(scroll);
-
-    return () => cancelAnimationFrame(animationFrame);
-  }, [tasks, paused]);
+  const handleMouseUp = () => setIsDragging(false);
 
   const handleDragStart = (index) => setDraggedIndex(index);
   const handleDragOver = (e) => e.preventDefault();
@@ -46,8 +40,10 @@ function TaskList({ tasks, onDelete, onToggle, onUpdate, onReorder }) {
     <div
       ref={containerRef}
       className="carousel-container"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
     >
       <div className="carousel-content">
         {tasks.map((task, idx) => (

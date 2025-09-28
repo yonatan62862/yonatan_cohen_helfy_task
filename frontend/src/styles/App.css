@@ -121,31 +121,26 @@ h1 {
 /* ====== Task List ====== */
 .carousel-container {
   width: 100%;
-  overflow: hidden; 
-  border-radius: 8px;
-  padding: 10px;
-  margin-top: 1rem;
-  position: relative;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }
 
 .carousel-content {
-  display: inline-flex;
-  gap: 1rem;
-}
-
-.carousel-content::after {
-  content: attr(data-duplicate);
   display: flex;
   gap: 1rem;
 }
+
+
 
 
 @keyframes scroll-loop {
   0% {
     transform: translateX(0);
   }
+
   100% {
-    transform: translateX(-50%); 
+    transform: translateX(-50%);
   }
 }
 
